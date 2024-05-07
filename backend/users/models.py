@@ -1,4 +1,5 @@
 from django.contrib.auth.models import AbstractUser
+from django.contrib.auth import validators
 from django.db import models
 
 
@@ -22,6 +23,7 @@ class MyCustomUser(AbstractUser):
         verbose_name='Имя',
         help_text='Введите имя.',
         unique=True,
+        validators=[validators.UnicodeUsernameValidator()],
     )
     last_name = models.CharField(
         max_length=150,
