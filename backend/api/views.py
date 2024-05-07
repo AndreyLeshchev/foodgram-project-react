@@ -82,7 +82,7 @@ class CustomUserViewSet(UserViewSet):
             )
         except Subscription.DoesNotExist:
             return HttpResponseBadRequest(
-                'Вы еще не подписались.'
+                'Вы еще не подписаны на этого пользователя.'
             )
         subscription.delete()
         return response.Response(status=status.HTTP_204_NO_CONTENT)
@@ -119,7 +119,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     serializer_class = GetRecipeSerializer
     permission_classes = (IsAuthorOrReadOnly, )
-    pagination_class = None
     filter_backends = (DjangoFilterBackend, )
     filterset_class = RecipeFilter
     lookup_url_kwarg = 'id'
@@ -138,7 +137,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
             recipe = Recipe.objects.get(id=id)
         except Recipe.DoesNotExist:
             return HttpResponseBadRequest('Рецепт ещё не создан.')
-        data = {'user': request.user.id, 'recipe': recipe.id}
+        user = get_object_or_404(User, id=request.user.id)
+        data = {'user': user.id, 'recipe': recipe.id}
         serializer = FavoriteSerializer(data=data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
@@ -177,7 +177,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
             recipe = Recipe.objects.get(id=id)
         except Recipe.DoesNotExist:
             return HttpResponseBadRequest('Рецепт ещё не создан.')
-        data = {'user': request.user.id, 'recipe': recipe.id}
+        user = get_object_or_404(User, id=request.user.id)
+        data = {'user': user.id, 'recipe': recipe.id}
         serializer = ShoppingCartSerializer(data=data)
         serializer.is_valid(raise_exception=True)
         serializer.save()

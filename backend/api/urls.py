@@ -11,7 +11,7 @@ router.register('tags', TagViewSet, basename='tags')
 router.register('ingredients', IngredientViewSet, basename='ingredients')
 router.register('recipes', RecipeViewSet, basename='recipes')
 
-apipatterns = [
+urlpatterns = [
     path('', include(router.urls)),
     path('auth/', include('djoser.urls.authtoken')),
 ]
