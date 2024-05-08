@@ -14,6 +14,7 @@ SECRET_KEY = os.getenv('SECRET_KEY', default=get_random_secret_key())
 DEBUG = os.getenv('DEBUG', default='False').lower() == 'true'
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', default='127.0.0.1, localhost').split(', ')
+CSRF_TRUSTED_ORIGINS = ['http://*.recipesfood.hopto.org', 'https://*.recipesfood.hopto.org']
 
 AUTH_USER_MODEL = 'users.MyCustomUser'
 

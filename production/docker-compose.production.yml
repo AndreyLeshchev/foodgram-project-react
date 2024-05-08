@@ -7,7 +7,7 @@ volumes:
 
 services:
   db:
-    image: postgres:13
+    image: postgres:13.10
     env_file: ./.env.example
     volumes:
       - pg_data:/var/lib/postgresql/data
@@ -37,5 +37,5 @@ services:
     volumes:
       - ./frontend/build:/usr/share/nginx/html/
       - ./docs/:/usr/share/nginx/html/api/docs/
-      - static:/var/www/static/
-      - media:/var/www/html/media/
+      - static:/var/html/static/
+      - media:/var/html/media/
