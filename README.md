@@ -121,7 +121,7 @@ Foodgram — онлайн-сервис для создания и обмена �
    sudo docker compose -f docker-compose.production.yml exec backend python manage.py load_ingredients
    sudo docker compose -f docker-compose.production.yml exec backend python manage.py load_tags
    sudo docker compose -f docker-compose.production.yml exec backend python manage.py collectstatic
-   sudo docker compose -f docker-compose.production.yml exec backend cp -r /app/static/. /static/
+   sudo docker compose -f docker-compose.production.yml exec backend cp -r /app/collected_static/. /backend_static/
    ```
    На сервере в редакторе nano откройте конфиг Nginx и измените настройки location в секции server:
    ```
@@ -139,14 +139,14 @@ Foodgram — онлайн-сервис для создания и обмена �
 
    sudo service nginx reload
    ```
-   
-   После запуска проекта будет доступна документация по адресу:
-
-   ```
-   http://127.0.0.1:8000/api/docs/
-   ```
 
 ## Примеры запросов к API:
+
+* После запуска проекта будет доступна документация по адресу:
+
+   ```
+   https://127.0.0.1:8000/api/docs/
+   ```
 
 * Для получение специального токена необходимо отправить запрос по адресу:
 
