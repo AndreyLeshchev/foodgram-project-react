@@ -14,7 +14,7 @@ SECRET_KEY = os.getenv('SECRET_KEY', default=get_random_secret_key())
 DEBUG = os.getenv('DEBUG', default='False').lower() == 'true'
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', default='127.0.0.1, localhost').split(', ')
-CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS', default='https://*localhost').split(', ')
+CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS', default='http://*localhost').split(', ')
 
 AUTH_USER_MODEL = 'users.MyCustomUser'
 
