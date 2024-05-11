@@ -10,7 +10,7 @@ from recipes.models import (
     Favorite, Ingredient, Recipe, RecipeIngredient, ShoppingCart, Tag,
 )
 from users.models import Subscription
-from .filters import IngredienFilter, RecipeFilter
+from .filters import IngredientFilter, RecipeFilter
 from .permissions import IsAuthorOrReadOnly
 from .serializers import (
     CreateRecipeSerializer, FavoriteSerializer, GetRecipeSerializer,
@@ -110,7 +110,7 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = (permissions.AllowAny, )
     pagination_class = None
     filter_backends = (DjangoFilterBackend, )
-    filterset_class = IngredienFilter
+    filterset_class = IngredientFilter
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
@@ -122,6 +122,14 @@ class RecipeViewSet(viewsets.ModelViewSet):
     filter_backends = (DjangoFilterBackend, )
     filterset_class = RecipeFilter
     lookup_url_kwarg = 'id'
+
+    def get_serializer_class(self):
+        if self.request.method in permissions.SAFE_METHODS:
+            return GetRecipeSerializer
+        return CreateRecipeSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
 
     @decorators.action(
         detail=True,
@@ -221,11 +229,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
         ).annotate(
             amount=Sum('amount'),
         )
-        filename = 'food_basket.txt'
         response = HttpResponse(content_type='text/plain', charset='utf-8')
         response['Content-Disposition'] = (
             'attachment; '
-            f'filename="{filename}"'
+            'filename="shopping_cart.txt"'
         )
         results_cart = 'Продуктовая корзина:\n'
         if ingredients_recipes.exists():
@@ -242,8 +249,3 @@ class RecipeViewSet(viewsets.ModelViewSet):
         response.content = 'Продуктовая корзина пуста.'
         response.status_code = status.HTTP_204_NO_CONTENT
         return response
-
-    def get_serializer_class(self):
-        if self.request.method == 'GET':
-            return GetRecipeSerializer
-        return CreateRecipeSerializer

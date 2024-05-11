@@ -118,7 +118,8 @@ Foodgram — онлайн-сервис для создания и обмена �
    Выполните миграции, загрузите данные в базу данных, соберите статические файлы бэкенда и скопируйте их в /static/:
    ```
    sudo docker compose -f docker-compose.production.yml exec backend python manage.py migrate
-   sudo docker compose -f docker-compose.production.yml exec backend python manage.py load
+   sudo docker compose -f docker-compose.production.yml exec backend python manage.py load_ingredients
+   sudo docker compose -f docker-compose.production.yml exec backend python manage.py load_tags
    sudo docker compose -f docker-compose.production.yml exec backend python manage.py collectstatic
    sudo docker compose -f docker-compose.production.yml exec backend cp -r /app/static/. /static/
    ```

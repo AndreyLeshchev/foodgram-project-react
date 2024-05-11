@@ -14,7 +14,7 @@ SECRET_KEY = os.getenv('SECRET_KEY', default=get_random_secret_key())
 DEBUG = os.getenv('DEBUG', default='False').lower() == 'true'
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', default='127.0.0.1, localhost').split(', ')
-CSRF_TRUSTED_ORIGINS = ['http://*.recipesfood.hopto.org', 'https://*.recipesfood.hopto.org']
+CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS', default='https://*localhost').split(', ')
 
 AUTH_USER_MODEL = 'users.MyCustomUser'
 
@@ -118,9 +118,9 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / 'static'
+STATIC_ROOT = os.path.join(BASE_DIR, 'collected_static')
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = os.path.join(BASE_DIR, '/media/')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
