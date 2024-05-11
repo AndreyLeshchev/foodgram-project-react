@@ -31,19 +31,6 @@ class CustomUserViewSet(UserViewSet):
     lookup_url_kwarg = 'id'
 
     @decorators.action(
-        methods=["get"],
-        detail=False,
-        permission_classes=(permissions.IsAuthenticated,),
-    )
-    def me(self, request):
-        """Получить свой профиль пользователя."""
-        user_obj = User.objects.get(id=request.user.id)
-        serializer = MyCustomUserSerializer(
-            instance=user_obj, context={"request": request}
-        )
-        return response.Response(serializer.data)
-
-    @decorators.action(
         detail=False,
         methods=['get'],
         url_path='subscriptions',
@@ -54,7 +41,9 @@ class CustomUserViewSet(UserViewSet):
         """Список подписок."""
 
         authors = User.objects.filter(author__subscriber=request.user)
-        result_pages = self.paginate_queryset(queryset=authors,)
+        result_pages = self.paginate_queryset(
+            authors, request,
+        )
         context = {'request': request}
         serializer = SubscriptionShowSerializer(
             result_pages, context=context, many=True,
