@@ -39,7 +39,7 @@ Foodgram — онлайн-сервис для создания и обмена �
     Установить зависимости из файла requirements.txt:
 
     ```
-    python3 -m pip install --upgrade pip
+    python -m pip install --upgrade pip
     ```
     ```
     pip install -r requirements.txt
@@ -48,7 +48,7 @@ Foodgram — онлайн-сервис для создания и обмена �
     Выполнить миграции:
 
     ```
-    python3 manage.py migrate
+    python manage.py migrate
     ```
 
     Запустить проект:
@@ -66,6 +66,7 @@ Foodgram — онлайн-сервис для создания и обмена �
     - DB_PORT — порт, по которому Django будет обращаться к базе данных. 5432 — это порт по умолчанию для PostgreSQL.
     - DEBUG = включать/выключать отладочный режим приложения в зависимости от текущего окружения (необязательная переменная, значение по умолчанию — False)
     - ALLOWED_HOSTS = список хостов/доменов, для которых может работать текущий сайт (необязательная переменная, значение по умолчанию — 127.0.0.1, localhost).
+    - CSRF_TRUSTED_ORIGINS - список хостов/доменов, для доступа в админ зону.
     - USE_DB - возможность сменить базу данных sqlite/postgresql (необязательная переменная, значение по умолчанию — postgresql).
     ```
 2. Подготовка проекта для развертывания на сервере:
@@ -115,13 +116,13 @@ Foodgram — онлайн-сервис для создания и обмена �
    ```
    sudo docker compose -f docker-compose.production.yml up -d
    ```
-   Выполните миграции, загрузите данные в базу данных, соберите статические файлы бэкенда и скопируйте их в /static/:
+   Выполните миграции, загрузите данные в базу данных, соберите статические файлы бэкенда и скопируйте их в /backend_static/static/:
    ```
    sudo docker compose -f docker-compose.production.yml exec backend python manage.py migrate
    sudo docker compose -f docker-compose.production.yml exec backend python manage.py load_ingredients
    sudo docker compose -f docker-compose.production.yml exec backend python manage.py load_tags
    sudo docker compose -f docker-compose.production.yml exec backend python manage.py collectstatic
-   sudo docker compose -f docker-compose.production.yml exec backend cp -r /app/collected_static/. /backend_static/
+   sudo docker compose -f docker-compose.production.yml exec backend cp -r /app/collected_static/. /backend_static/static/
    ```
    На сервере в редакторе nano откройте конфиг Nginx и измените настройки location в секции server:
    ```
