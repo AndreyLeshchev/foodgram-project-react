@@ -26,6 +26,7 @@ class CustomUserViewSet(UserViewSet):
     """Вьюсет пользователя."""
 
     queryset = User.objects.all()
+    permission_classes = (permissions.AllowAny,)
     serializer_class = MyCustomUserSerializer
     lookup_url_kwarg = 'id'
 
@@ -116,7 +117,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
     """Вьюсет для рецептов."""
 
     queryset = Recipe.objects.all()
-    serializer_class = GetRecipeSerializer
     permission_classes = (IsAuthorOrReadOnly, )
     filter_backends = (DjangoFilterBackend, )
     filterset_class = RecipeFilter

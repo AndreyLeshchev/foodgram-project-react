@@ -62,6 +62,19 @@ class SubscriptionSerializer(serializers.ModelSerializer):
         return data
 
 
+class RecipeShowSerializer(serializers.ModelSerializer):
+    """Сериализатор для отображения рецептов."""
+
+    image = Base64ImageField()
+
+    class Meta:
+        model = Recipe
+        fields = (
+            'id', 'name',
+            'image', 'cooking_time',
+        )
+
+
 class SubscriptionShowSerializer(MyCustomUserSerializer):
     """Сериализатор для подписок."""
 
@@ -76,6 +89,13 @@ class SubscriptionShowSerializer(MyCustomUserSerializer):
             'is_subscribed', 'recipes',
             'recipes_count',
         )
+
+    def get_recipes(self, obj):
+        user = User.objects.get(id=obj.id)
+        recipes = Recipe.objects.filter(author=user)
+        return RecipeShowSerializer(
+            instance=recipes, many=True,
+        ).data
 
     def get_recipes_count(self, obj):
         return obj.recipes.count()
@@ -258,19 +278,6 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         return GetRecipeSerializer(instance).data
-
-
-class RecipeShowSerializer(serializers.ModelSerializer):
-    """Сериализатор для отображения рецептов."""
-
-    image = Base64ImageField()
-
-    class Meta:
-        model = Recipe
-        fields = (
-            'id', 'name',
-            'image', 'cooking_time',
-        )
 
 
 class FavoriteSerializer(serializers.ModelSerializer):
