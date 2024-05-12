@@ -3,7 +3,7 @@ from django.db.models import Sum
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from djoser.views import UserViewSet
+# from djoser.views import UserViewSet
 from rest_framework import decorators, permissions, status, viewsets, response
 
 from recipes.models import (
