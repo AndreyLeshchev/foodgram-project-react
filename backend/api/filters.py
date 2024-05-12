@@ -1,9 +1,6 @@
 from django_filters import rest_framework as filters
-from django.contrib.auth import get_user_model
 
 from recipes.models import Ingredient, Recipe
-
-User = get_user_model()
 
 
 class IngredientFilter(filters.FilterSet):
