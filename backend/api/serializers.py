@@ -61,11 +61,6 @@ class SubscriptionSerializer(serializers.ModelSerializer):
             )
         return data
 
-    def to_representation(self, instance):
-        return SubscriptionShowSerializer(
-            instance.author, contenxt=self.context,
-        ).data
-
 
 class SubscriptionShowSerializer(MyCustomUserSerializer):
     """Сериализатор для подписок."""
@@ -83,8 +78,9 @@ class SubscriptionShowSerializer(MyCustomUserSerializer):
         )
 
     def get_recipes(self, obj):
+        author_recipes = obj.recipes.all()[:3]
         return RecipeShowSerializer(
-            obj.recipes.all()[:3], many=True,
+            author_recipes, many=True,
         ).data
 
     def get_recipes_count(self, obj):
