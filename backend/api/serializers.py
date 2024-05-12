@@ -84,7 +84,7 @@ class SubscriptionShowSerializer(MyCustomUserSerializer):
 
     def get_recipes(self, obj):
         return RecipeShowSerializer(
-            obj.recipes.all(), many=True,
+            obj.recipes.all()[:3], many=True,
         ).data
 
     def get_recipes_count(self, obj):
