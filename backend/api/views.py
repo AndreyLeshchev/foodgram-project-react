@@ -41,9 +41,7 @@ class CustomUserViewSet(UserViewSet):
         """Список подписок."""
 
         authors = User.objects.filter(author__subscriber=request.user)
-        result_pages = self.paginate_queryset(
-            authors, request,
-        )
+        result_pages = self.paginate_queryset(queryset=authors,)
         context = {'request': request}
         serializer = SubscriptionShowSerializer(
             result_pages, context=context, many=True,
@@ -126,7 +124,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     lookup_url_kwarg = 'id'
 
     def get_serializer_class(self):
-        if self.request.method in permissions.SAFE_METHODS:
+        if self.action == 'action' or self.action == 'list':
             return GetRecipeSerializer
         return CreateRecipeSerializer
 
