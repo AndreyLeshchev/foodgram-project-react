@@ -60,15 +60,13 @@ class CustomUserViewSet(UserViewSet):
         author = get_object_or_404(User, id=id)
         subscriber = get_object_or_404(User, id=request.user.id)
         data = {'subscriber': subscriber.id, 'author': author.id}
-        serializer = SubscriptionSerializer(data=data)
+        serializer = SubscriptionSerializer(
+            data=data, context={'request': request}
+        )
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        context = {'request': request}
-        result_serializer = SubscriptionShowSerializer(
-            author, context=context,
-        )
         return response.Response(
-            result_serializer.data, status=status.HTTP_201_CREATED,
+            serializer.data, status=status.HTTP_201_CREATED,
         )
 
     @get_subscribe.mapping.delete
