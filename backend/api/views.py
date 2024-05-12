@@ -124,7 +124,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     lookup_url_kwarg = 'id'
 
     def get_serializer_class(self):
-        if self.action == 'action' or self.action == 'list':
+        if self.request.method in permissions.SAFE_METHODS:
             return GetRecipeSerializer
         return CreateRecipeSerializer
 
