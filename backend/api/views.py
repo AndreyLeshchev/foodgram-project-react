@@ -22,7 +22,7 @@ from .serializers import (
 User = get_user_model()
 
 
-class CustomUserViewSet(UserViewSet):
+class CustomUserViewSet(viewsets.ModelViewSet):
     """Вьюсет пользователя."""
 
     queryset = User.objects.all()
