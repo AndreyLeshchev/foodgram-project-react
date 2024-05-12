@@ -26,8 +26,8 @@ class CustomUserViewSet(UserViewSet):
     """Вьюсет пользователя."""
 
     queryset = User.objects.all()
-    permission_classes = (permissions.AllowAny,)
     serializer_class = MyCustomUserSerializer
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
     lookup_url_kwarg = 'id'
 
     @decorators.action(
@@ -228,11 +228,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
         ).annotate(
             amount=Sum('amount'),
         )
-        response = HttpResponse(content_type='text/plain', charset='utf-8')
-        response['Content-Disposition'] = (
-            'attachment; '
-            'filename="shopping_cart.txt"'
-        )
         results_cart = 'Продуктовая корзина:\n'
         if ingredients_recipes.exists():
             for num, ingredient in enumerate(ingredients_recipes, 1):
@@ -242,9 +237,15 @@ class RecipeViewSet(viewsets.ModelViewSet):
                     f"{ingredient['amount']} "
                     f"{ingredient['ingredient__measurement_unit']}.\n"
                 )
-            response.content = results_cart
-            response.status_code = status.HTTP_200_OK
+            response = HttpResponse(
+                content=results_cart, content_type='text/plain',
+                charset='utf-8',
+            )
+            response['Content-Disposition'] = (
+                'attachment; '
+                'filename="shopping_cart.txt"'
+            )
             return response
-        response.content = 'Продуктовая корзина пуста.'
-        response.status_code = status.HTTP_204_NO_CONTENT
-        return response
+        return HttpResponseBadRequest(
+            'Продуктовая корзина пуста.'
+        )

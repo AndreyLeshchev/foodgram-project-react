@@ -1,4 +1,5 @@
 from drf_extra_fields.fields import Base64ImageField
+from djoser.serializers import UserSerializer
 
 from django.contrib.auth import get_user_model
 from rest_framework import serializers, validators
@@ -9,11 +10,10 @@ from recipes.models import (
 )
 from users.models import Subscription
 
-
 User = get_user_model()
 
 
-class MyCustomUserSerializer(serializers.ModelSerializer):
+class MyCustomUserSerializer(UserSerializer):
     """Сериализатор для модели MyCustomUser."""
 
     is_subscribed = serializers.SerializerMethodField(read_only=True)
@@ -91,10 +91,13 @@ class SubscriptionShowSerializer(MyCustomUserSerializer):
         )
 
     def get_recipes(self, obj):
-        user = User.objects.get(id=obj.id)
-        recipes = Recipe.objects.filter(author=user)
+        recipes = obj.recipes.all()
+        request = self.context.get('request')
+        recipes_limit = request.GET.get('recipes_limit')
+        if recipes_limit:
+            recipes = obj.recipes.all()[:int(recipes_limit)]
         return RecipeShowSerializer(
-            instance=recipes, many=True,
+            recipes, many=True,
         ).data
 
     def get_recipes_count(self, obj):
