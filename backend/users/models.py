@@ -2,7 +2,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 
-class MyCustomUser(AbstractUser):
+class CustomUser(AbstractUser):
     """Модель пользователя."""
 
     email = models.EmailField(
@@ -56,14 +56,14 @@ class Subscription(models.Model):
     """Модель подписок."""
 
     author = models.ForeignKey(
-        MyCustomUser,
+        CustomUser,
         on_delete=models.CASCADE,
         related_name='author',
         verbose_name='Автор',
         help_text='Выберите автора рецепта.',
     )
     subscriber = models.ForeignKey(
-        MyCustomUser,
+        CustomUser,
         on_delete=models.CASCADE,
         related_name='subscriber',
         verbose_name='Подписчик',

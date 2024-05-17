@@ -16,7 +16,7 @@ DEBUG = os.getenv('DEBUG', default='False').lower() == 'true'
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', default='127.0.0.1, localhost').split(', ')
 CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS', default='http://*localhost').split(', ')
 
-AUTH_USER_MODEL = 'users.MyCustomUser'
+AUTH_USER_MODEL = 'users.CustomUser'
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -101,8 +101,8 @@ DJOSER = {
     'LOGIN_FIELD': 'email',
     'HIDE_USERS': False,
     'SERIALIZERS': {
-        'user': 'api.serializers.MyCustomUserSerializer',
-        'current_user': 'api.serializers.MyCustomUserSerializer',
+        'user': 'api.serializers.CustomUserSerializer',
+        'current_user': 'api.serializers.CustomUserSerializer',
     },
     'PERMISSIONS': {
         'user': ('djoser.permissions.CurrentUserOrAdminOrReadOnly', ),

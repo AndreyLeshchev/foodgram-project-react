@@ -56,12 +56,19 @@ class RecipeAdmin(admin.ModelAdmin):
     @admin.display(description='Ингредиенты')
     def get_ingredients(self, obj):
         return '\n'.join(
-            ingredients.name for ingredients in obj.ingredients.all()
+            Recipe.objects.filter(id=obj.id).values_list(
+                'ingredients__name', flat=True,
+            )
         )
 
     @admin.display(description='Тэги')
     def get_tags(self, obj):
-        return '\n'.join(tag.name for tag in obj.tags.all())
+        return '\n'.join(
+            Recipe.objects.filter(id=obj.id).values_list(
+                'tags__name', flat=True,
+            )
+        )
+
 
 
 @admin.register(Favorite)

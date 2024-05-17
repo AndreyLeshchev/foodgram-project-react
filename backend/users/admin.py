@@ -9,7 +9,7 @@ admin.site.empty_value_display = 'Ещё ничего не задано'
 
 
 @admin.register(User)
-class MyCustomUserAdmin(admin.ModelAdmin):
+class CustomUserAdmin(admin.ModelAdmin):
 
     list_display = (
         'id',

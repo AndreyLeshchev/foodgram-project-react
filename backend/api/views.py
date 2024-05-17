@@ -14,10 +14,11 @@ from .filters import IngredientFilter, RecipeFilter
 from .permissions import IsAuthorOrReadOnly
 from .serializers import (
     CreateRecipeSerializer, FavoriteSerializer, GetRecipeSerializer,
-    IngredientSerializer, MyCustomUserSerializer, RecipeShowSerializer,
+    IngredientSerializer, CustomUserSerializer, RecipeShowSerializer,
     ShoppingCartSerializer, SubscriptionSerializer, SubscriptionShowSerializer,
     TagSerializer,
 )
+from .mixins import CreateDeleteMixin
 
 User = get_user_model()
 
@@ -26,7 +27,7 @@ class CustomUserViewSet(UserViewSet):
     """Вьюсет пользователя."""
 
     queryset = User.objects.all()
-    serializer_class = MyCustomUserSerializer
+    serializer_class = CustomUserSerializer
     permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
     lookup_url_kwarg = 'id'
 
@@ -55,12 +56,11 @@ class CustomUserViewSet(UserViewSet):
         url_name='subscribe',
         permission_classes=(permissions.IsAuthenticated, )
     )
-    def get_subscribe(self, request, id=None):
+    def post_subscribe(self, request, id=None):
         """Оформление подписки."""
 
         author = get_object_or_404(User, id=id)
-        subscriber = get_object_or_404(User, id=request.user.id)
-        data = {'subscriber': subscriber.id, 'author': author.id}
+        data = {'subscriber': request.user.id, 'author': author.id}
         serializer = SubscriptionSerializer(data=data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
@@ -72,7 +72,7 @@ class CustomUserViewSet(UserViewSet):
             result_serializer.data, status=status.HTTP_201_CREATED,
         )
 
-    @get_subscribe.mapping.delete
+    @post_subscribe.mapping.delete
     def delete_subscribe(self, request, id=None):
         """Удаление подписки."""
 
@@ -113,7 +113,7 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     filterset_class = IngredientFilter
 
 
-class RecipeViewSet(viewsets.ModelViewSet):
+class RecipeViewSet(viewsets.ModelViewSet, CreateDeleteMixin):
     """Вьюсет для рецептов."""
 
     queryset = Recipe.objects.all()
@@ -137,7 +137,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         url_name='favorite',
         permission_classes=(permissions.IsAuthenticated, )
     )
-    def get_favorite(self, request, id=None):
+    def post_favorite(self, request, id=None):
         """Добавление рецепта в избранные."""
 
         try:
@@ -154,21 +154,13 @@ class RecipeViewSet(viewsets.ModelViewSet):
             result_serializer.data, status=status.HTTP_201_CREATED
         )
 
-    @get_favorite.mapping.delete
+    @post_favorite.mapping.delete
     def delete_favorite(self, request, id=None):
         """Удаления рецепта из избранных."""
 
-        recipe = get_object_or_404(Recipe, id=id)
-        try:
-            favorite_recipe = Favorite.objects.get(
-                user=request.user, recipe=recipe,
-            )
-        except Favorite.DoesNotExist:
-            return HttpResponseBadRequest(
-                'У вас нет этого рецепта в избранных.'
-            )
-        favorite_recipe.delete()
-        return response.Response(status=status.HTTP_204_NO_CONTENT)
+        return self.delete_info(
+            obj_one=Recipe, obj_two=Favorite, request=request, id=id,
+        )
 
     @decorators.action(
         detail=True,
@@ -177,7 +169,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         url_name='shopping_cart',
         permission_classes=(permissions.IsAuthenticated, )
     )
-    def get_shopping_cart(self, request, id=None):
+    def post_shopping_cart(self, request, id=None):
         """Добавление рецепта в корзину покупок."""
 
         try:
@@ -194,7 +186,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             shopping_cart_serializer.data, status=status.HTTP_201_CREATED
         )
 
-    @get_shopping_cart.mapping.delete
+    @post_shopping_cart.mapping.delete
     def delete_shopping_cart(self, request, id=None):
         """Удаления рецепта из корзины покупок."""
 
@@ -217,7 +209,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         url_name='download_shopping_cart',
         permission_classes=(permissions.IsAuthenticated, )
     )
-    def download_shopping_cart(self, request):
+    def get_download_shopping_cart(self, request):
         """Файл со списком покупок."""
 
         author = get_object_or_404(User, id=request.user.id)
@@ -226,7 +218,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         ).values(
             'ingredient__name', 'ingredient__measurement_unit',
         ).annotate(
-            amount=Sum('amount'),
+            total_amount=Sum('amount'),
         )
         results_cart = 'Продуктовая корзина:\n'
         if ingredients_recipes.exists():
@@ -234,7 +226,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 results_cart += (
                     f"{num}. "
                     f"{ingredient['ingredient__name'].capitalize()} - "
-                    f"{ingredient['amount']} "
+                    f"{ingredient['total_amount']} "
                     f"{ingredient['ingredient__measurement_unit']}.\n"
                 )
             response = HttpResponse(
