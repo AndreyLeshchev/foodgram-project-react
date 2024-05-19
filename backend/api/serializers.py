@@ -164,7 +164,9 @@ class GetRecipeSerializer(serializers.ModelSerializer):
     author = CustomUserSerializer(read_only=True)
     tags = TagSerializer(read_only=True, many=True)
     image = Base64ImageField()
-    ingredients = RecipeIngredientSerializer(read_only=True, many=True)
+    ingredients = RecipeIngredientSerializer(
+        source='recipe_ingredient', read_only=True, many=True
+    )
     is_favorited = serializers.SerializerMethodField(read_only=True)
     is_in_shopping_cart = serializers.SerializerMethodField(read_only=True)
 
@@ -254,10 +256,12 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
         return value
 
     def validate_ingredients(self, value):
-        ingredients = (ingredient.get('id') for ingredient in value)
-        if len(ingredients) != len(set(ingredients)):
+        ingredients = [
+            ingredient.get('id') for ingredient in value
+        ]
+        if len(set(ingredients)) != len(ingredients):
             raise serializers.ValidationError(
-                'Ингредиенты не должны повторяться!'
+                'Ингредиенты не должны повторяться.'
             )
         if not value:
             raise serializers.ValidationError(

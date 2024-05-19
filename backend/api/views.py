@@ -14,11 +14,10 @@ from .filters import IngredientFilter, RecipeFilter
 from .permissions import IsAuthorOrReadOnly
 from .serializers import (
     CreateRecipeSerializer, FavoriteSerializer, GetRecipeSerializer,
-    IngredientSerializer, CustomUserSerializer, RecipeShowSerializer,
-    ShoppingCartSerializer, SubscriptionSerializer, SubscriptionShowSerializer,
-    TagSerializer,
+    IngredientSerializer, CustomUserSerializer, ShoppingCartSerializer,
+    SubscriptionSerializer, SubscriptionShowSerializer, TagSerializer,
 )
-from .mixins import CreateDeleteMixin
+from .utils import create_post, delete_post
 
 User = get_user_model()
 
@@ -113,7 +112,7 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     filterset_class = IngredientFilter
 
 
-class RecipeViewSet(viewsets.ModelViewSet, CreateDeleteMixin):
+class RecipeViewSet(viewsets.ModelViewSet):
     """Вьюсет для рецептов."""
 
     queryset = Recipe.objects.all()
@@ -140,27 +139,13 @@ class RecipeViewSet(viewsets.ModelViewSet, CreateDeleteMixin):
     def post_favorite(self, request, id=None):
         """Добавление рецепта в избранные."""
 
-        try:
-            recipe = Recipe.objects.get(id=id)
-        except Recipe.DoesNotExist:
-            return HttpResponseBadRequest('Рецепт ещё не создан.')
-        user = get_object_or_404(User, id=request.user.id)
-        data = {'user': user.id, 'recipe': recipe.id}
-        serializer = FavoriteSerializer(data=data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        result_serializer = RecipeShowSerializer(recipe)
-        return response.Response(
-            result_serializer.data, status=status.HTTP_201_CREATED
-        )
+        return create_post(serz=FavoriteSerializer, request=request, id=id)
 
     @post_favorite.mapping.delete
     def delete_favorite(self, request, id=None):
         """Удаления рецепта из избранных."""
 
-        return self.delete_info(
-            obj_one=Recipe, obj_two=Favorite, request=request, id=id,
-        )
+        return delete_post(obj=Favorite, request=request, id=id)
 
     @decorators.action(
         detail=True,
@@ -172,35 +157,13 @@ class RecipeViewSet(viewsets.ModelViewSet, CreateDeleteMixin):
     def post_shopping_cart(self, request, id=None):
         """Добавление рецепта в корзину покупок."""
 
-        try:
-            recipe = Recipe.objects.get(id=id)
-        except Recipe.DoesNotExist:
-            return HttpResponseBadRequest('Рецепт ещё не создан.')
-        user = get_object_or_404(User, id=request.user.id)
-        data = {'user': user.id, 'recipe': recipe.id}
-        serializer = ShoppingCartSerializer(data=data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        shopping_cart_serializer = RecipeShowSerializer(recipe)
-        return response.Response(
-            shopping_cart_serializer.data, status=status.HTTP_201_CREATED
-        )
+        return create_post(serz=ShoppingCartSerializer, request=request, id=id)
 
     @post_shopping_cart.mapping.delete
     def delete_shopping_cart(self, request, id=None):
         """Удаления рецепта из корзины покупок."""
 
-        recipe = get_object_or_404(Recipe, id=id)
-        try:
-            shopping_cart_recipe = ShoppingCart.objects.get(
-                user=request.user, recipe=recipe,
-            )
-        except ShoppingCart.DoesNotExist:
-            return HttpResponseBadRequest(
-                'У вас нет этого рецепта в списке покупок.'
-            )
-        shopping_cart_recipe.delete()
-        return response.Response(status=status.HTTP_204_NO_CONTENT)
+        return delete_post(obj=ShoppingCart, request=request, id=id)
 
     @decorators.action(
         detail=False,
