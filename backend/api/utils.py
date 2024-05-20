@@ -9,7 +9,7 @@ from .serializers import RecipeShowSerializer
 User = get_user_model()
 
 
-def create_post(serz=None, request=None, id=None):
+def create_post(model_serializer=None, request=None, id=None):
 
     try:
         recipe = Recipe.objects.get(id=id)
@@ -17,7 +17,7 @@ def create_post(serz=None, request=None, id=None):
         return HttpResponseBadRequest('Рецепт ещё не создан.')
     user = get_object_or_404(User, id=request.user.id)
     data = {'user': user.id, 'recipe': recipe.id}
-    serializer = serz(data=data)
+    serializer = model_serializer(data=data)
     serializer.is_valid(raise_exception=True)
     serializer.save()
     result_serializer = RecipeShowSerializer(recipe)

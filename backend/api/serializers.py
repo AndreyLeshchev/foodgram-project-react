@@ -238,7 +238,6 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
         self.create_tags_ingredients(
             recipe=instance, ingredients=ingredients, tags=tags,
         )
-        instance.save()
         return instance
 
     def validate_image(self, value):

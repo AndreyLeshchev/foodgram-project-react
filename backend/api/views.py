@@ -139,7 +139,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def post_favorite(self, request, id=None):
         """Добавление рецепта в избранные."""
 
-        return create_post(serz=FavoriteSerializer, request=request, id=id)
+        return create_post(
+            model_serializer=FavoriteSerializer, request=request, id=id,
+        )
 
     @post_favorite.mapping.delete
     def delete_favorite(self, request, id=None):
@@ -157,7 +159,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def post_shopping_cart(self, request, id=None):
         """Добавление рецепта в корзину покупок."""
 
-        return create_post(serz=ShoppingCartSerializer, request=request, id=id)
+        return create_post(
+            model_serializer=ShoppingCartSerializer, request=request, id=id,
+        )
 
     @post_shopping_cart.mapping.delete
     def delete_shopping_cart(self, request, id=None):
