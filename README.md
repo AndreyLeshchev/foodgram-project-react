@@ -2,6 +2,11 @@
 # Foodgram
 Foodgram — онлайн-сервис для создания и обмена рецептами блюд.
 
+Ссылка на сайт:  
+```
+https://recipesfood.hopto.org/
+```
+
 ## Используемые технологии:
 * Python
 * Django
